@@ -2,6 +2,7 @@ package com.java.controller;
 
 import com.java.domain.User;
 import com.java.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +14,8 @@ import java.util.Map;
 @Controller
 public class RegistrationController {
 
-    private final UserService userService;
-
-    public RegistrationController(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/registration")
     public String registration() {

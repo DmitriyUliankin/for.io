@@ -3,6 +3,7 @@ package com.java.service;
 import com.java.domain.Role;
 import com.java.domain.User;
 import com.java.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,14 +16,11 @@ import java.util.stream.Collectors;
 @Service
 public class UserService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final MailSender mailSender;
-
-    public UserService(UserRepository userRepository, MailSender mailSender) {
-        this.userRepository = userRepository;
-        this.mailSender = mailSender;
-    }
+    @Autowired
+    private MailSender mailSender;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
