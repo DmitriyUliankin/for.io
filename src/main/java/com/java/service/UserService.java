@@ -3,9 +3,11 @@ package com.java.service;
 import com.java.domain.Role;
 import com.java.domain.User;
 import com.java.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -15,18 +17,23 @@ import java.util.stream.Collectors;
 @Service
 public class UserService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final MailSender mailSender;
+    @Autowired
+    private MailSender mailSender;
 
-    public UserService(UserRepository userRepository, MailSender mailSender) {
-        this.userRepository = userRepository;
-        this.mailSender = mailSender;
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user;
     }
 
     public boolean addUser(User user) {
@@ -37,6 +44,7 @@ public class UserService implements UserDetailsService {
         user.setActive(false);
         user.setRoles(Collections.singleton(Role.USER));
         user.setActivationCode(UUID.randomUUID().toString());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepository.save(user);
 
