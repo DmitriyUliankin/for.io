@@ -5,7 +5,6 @@ import com.java.domain.dto.CaptchaResponseDto;
 import com.java.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -48,9 +47,9 @@ public class RegistrationController {
             Model model
     ) {
         String url = String.format(CAPTCHA_URL, secret, captchaResponce);
-        CaptchaResponseDto response =  restTemplate.postForObject(url, Collections.emptyList(), CaptchaResponseDto.class);
+        CaptchaResponseDto response = restTemplate.postForObject(url, Collections.emptyList(), CaptchaResponseDto.class);
 
-        if(!response.isSuccess()){
+        if (!response.isSuccess()) {
             model.addAttribute("captchaError", "Fill captcha");
         }
 
@@ -85,8 +84,7 @@ public class RegistrationController {
         if (isActivated) {
             model.addAttribute("messageType", "success");
             model.addAttribute("message", "User successfully activated");
-        }
-        else {
+        } else {
             model.addAttribute("messageType", "danger");
             model.addAttribute("message", "Activation code id not found");
         }

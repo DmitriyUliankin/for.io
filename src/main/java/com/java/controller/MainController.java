@@ -115,7 +115,7 @@ public class MainController {
             @RequestParam(required = false) Message message,
             @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
 
-    ){
+    ) {
         Page<MessageDto> page = messageService.messageListForUser(pageable, currentUser, author);
 
         model.addAttribute("userChannel", author);
@@ -125,7 +125,7 @@ public class MainController {
         model.addAttribute("page", page);
         model.addAttribute("message", message);
         model.addAttribute("isCurrentUser", currentUser.equals(author));
-        model.addAttribute("url", "/user-messages/"+author.getId());
+        model.addAttribute("url", "/user-messages/" + author.getId());
 
         return "userMessages";
     }
@@ -139,12 +139,12 @@ public class MainController {
             @RequestParam("tag") String tag,
             @RequestParam("file") MultipartFile file
     ) throws IOException {
-        if (message.getAuthor().equals(currentUser)){
-            if (!StringUtils.isEmpty(text)){
+        if (message.getAuthor().equals(currentUser)) {
+            if (!StringUtils.isEmpty(text)) {
                 message.setText(text);
             }
 
-            if (!StringUtils.isEmpty(tag)){
+            if (!StringUtils.isEmpty(tag)) {
                 message.setTag(tag);
             }
 
@@ -162,9 +162,9 @@ public class MainController {
             @PathVariable Message message,
             RedirectAttributes redirectAttributes,
             @RequestHeader(required = false) String referer
-    ){
+    ) {
         Set<User> likes = message.getLikes();
-        if(likes.contains(currentUser)){
+        if (likes.contains(currentUser)) {
             likes.remove(currentUser);
         } else {
             likes.add(currentUser);
@@ -172,7 +172,7 @@ public class MainController {
         UriComponents components = UriComponentsBuilder.fromHttpUrl(referer).build();
         components.getQueryParams()
                 .entrySet()
-                .forEach(pair ->redirectAttributes.addAttribute(pair.getKey(), pair.getValue()));
-        return "redirect:"+components.getPath();
+                .forEach(pair -> redirectAttributes.addAttribute(pair.getKey(), pair.getValue()));
+        return "redirect:" + components.getPath();
     }
 }

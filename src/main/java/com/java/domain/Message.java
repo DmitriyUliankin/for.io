@@ -29,7 +29,7 @@ public class Message {
     private String filename;
 
     @ManyToMany
-    @JoinTable(name="message_likes", joinColumns = {@JoinColumn(name = "message_id")},
+    @JoinTable(name = "message_likes", joinColumns = {@JoinColumn(name = "message_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> likes = new HashSet<>();
 

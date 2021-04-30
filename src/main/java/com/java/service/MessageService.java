@@ -1,6 +1,5 @@
 package com.java.service;
 
-import com.java.domain.Message;
 import com.java.domain.User;
 import com.java.domain.dto.MessageDto;
 import com.java.repository.MessageRepository;
@@ -14,15 +13,15 @@ public class MessageService {
     @Autowired
     private MessageRepository messageRepository;
 
-    public Page<MessageDto> messageList(Pageable pageable, String filter, User user){
+    public Page<MessageDto> messageList(Pageable pageable, String filter, User user) {
         if (filter != null && !filter.isEmpty()) {
-            return messageRepository.findByTag(filter, pageable , user );
+            return messageRepository.findByTag(filter, pageable, user);
         } else {
             return messageRepository.findAll(pageable, user);
         }
     }
 
     public Page<MessageDto> messageListForUser(Pageable pageable, User currentUser, User author) {
-        return messageRepository.findByUser(pageable,  author, currentUser);
+        return messageRepository.findByUser(pageable, author, currentUser);
     }
 }
