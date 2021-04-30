@@ -88,7 +88,7 @@ public class MainController {
 
         model.addAttribute("messages", messages);
 
-        return "main";
+        return "redirect:/";
     }
 
     private void saveFile(MultipartFile file, Message message) throws IOException {
@@ -159,7 +159,7 @@ public class MainController {
     @GetMapping(("/messages/{messages}/like"))
     public String like(
             @AuthenticationPrincipal User currentUser,
-            @PathVariable Message message,
+            @PathVariable("messages") Message message,
             RedirectAttributes redirectAttributes,
             @RequestHeader(required = false) String referer
     ){
