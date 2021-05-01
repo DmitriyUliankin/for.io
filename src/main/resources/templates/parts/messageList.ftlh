@@ -2,6 +2,9 @@
 <#import "pager.ftlh" as p>
 
 <@p.pager url page />
+<div id="collapses" style="display: none">
+    <#include "fill.ftlh"/>
+</div>
 <div class="card-columns" id="message-list">
     <#list page.content as message>
         <div class="card my-3" data-id="${message.id}">
@@ -25,7 +28,7 @@
                         ${message.likes}
                     </a>
                     <#if message.author.id == currentUserId>
-                        <a class="col btn btn-primary"
+                        <a class="col btn btn-primary" onclick="bolean()"
                            href="/user-messages/${message.author.id}?message=${message.id}">Edit</a>
                     </#if>
                 </div>

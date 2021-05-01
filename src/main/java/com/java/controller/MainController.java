@@ -88,7 +88,7 @@ public class MainController {
 
         model.addAttribute("messages", messages);
 
-        return "redirect:/";
+        return "redirect:/user-messages/"+user.getId();
     }
 
     private void saveFile(MultipartFile file, Message message) throws IOException {
@@ -133,7 +133,7 @@ public class MainController {
     @PostMapping("/user-messages/{user}")
     public String updateMessage(
             @AuthenticationPrincipal User currentUser,
-            @PathVariable Long user,
+            @PathVariable("user") Long user,
             @RequestParam("id") Message message,
             @RequestParam("text") String text,
             @RequestParam("tag") String tag,
