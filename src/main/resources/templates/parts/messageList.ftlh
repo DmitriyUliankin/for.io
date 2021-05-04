@@ -1,7 +1,7 @@
 <#include "security.ftlh">
 <#import "pager.ftlh" as p>
 
-<@p.pager url page />
+<@p.pager url page/>
 <div id="collapses" style="display: none">
     <#include "fill.ftlh"/>
 </div>
@@ -31,6 +31,19 @@
                         <a class="col btn btn-primary" onclick="bolean()"
                            href="/user-messages/${message.author.id}?message=${message.id}">Edit</a>
                     </#if>
+                    <button class="col btn btn-primary" data-toggle="collapse" onclick="aa(`collap`+${message.id})">Comment</button>
+
+                </div>
+                <div id="collap${message.id}" style="display: none">
+                    <#list comment as comment>
+                        <#if message.id == comment.message.id>
+                            <p><a class="col align-self-center"
+                                  href="/user-messages/${comment.author.id}"> ${comment.author.username}</a>:
+                                ${comment.text}
+                            </p>
+                        </#if>
+                    </#list>
+                    <#include "comment.ftlh"/>
                 </div>
             </div>
         </div>

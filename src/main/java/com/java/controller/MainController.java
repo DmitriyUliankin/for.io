@@ -1,9 +1,11 @@
 package com.java.controller;
 
+import com.java.domain.Comment;
 import com.java.domain.Message;
 import com.java.domain.User;
 import com.java.domain.dto.MessageDto;
 import com.java.repository.MessageRepository;
+import com.java.service.CommentService;
 import com.java.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,9 @@ import java.util.*;
 
 @Controller
 public class MainController {
+
+    @Autowired
+    private CommentService commentService;
 
     @Autowired
     private MessageRepository messageRepository;
@@ -82,7 +87,8 @@ public class MainController {
             @AuthenticationPrincipal User user
     ) {
         Page<MessageDto> page = messageService.messageList(pageable, filter, user);
-
+        List<Comment> list = commentService.findAll();
+        model.addAttribute("comment", list);
         model.addAttribute("page", page);
         model.addAttribute("url", "/main");
         model.addAttribute("filter", filter);
