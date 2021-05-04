@@ -8,6 +8,7 @@ import com.java.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -25,9 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class MainController {
@@ -42,8 +41,37 @@ public class MainController {
     private String uploadPath;
 
     @GetMapping("/")
-    public String greeting(Map<String, Object> model) {
-        return "greeting";
+    public String slash() {
+        return "slash";
+    }
+
+    @GetMapping("/home")
+    public String greeting(@RequestParam(required = false, defaultValue = "") String filter,
+                           Model model,
+                           @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+                           @AuthenticationPrincipal User user) {
+        Page<MessageDto> page = messageService.messageList(pageable, filter, user);
+
+        PageImpl<MessageDto> messageDtos = new PageImpl<>(new ArrayList<>());
+        List<MessageDto> lst = new ArrayList<>();
+
+        for (int i = 0; i < page.getTotalElements(); i++) {
+            MessageDto messageDto = page.getContent().get(i);
+            Set<User> subscribers = messageDto.getAuthor().getSubscribers();
+            ArrayList<User> users = new ArrayList<>(subscribers);
+            String username = "";
+            if (users.size() != 0) {
+                username = users.get(0).getUsername();
+            }
+            if (user.getUsername().equals(username)) {
+                System.out.println(username);
+                lst.add(page.getContent().get(i));
+            }
+        }
+        messageDtos = new PageImpl<>(lst);
+        model.addAttribute("page", messageDtos);
+        model.addAttribute("url", "/");
+        return "home";
     }
 
     @GetMapping("/main")
@@ -88,7 +116,7 @@ public class MainController {
 
         model.addAttribute("messages", messages);
 
-        return "main";
+        return "redirect:/user-messages/" + user.getId();
     }
 
     private void saveFile(MultipartFile file, Message message) throws IOException {
@@ -133,7 +161,7 @@ public class MainController {
     @PostMapping("/user-messages/{user}")
     public String updateMessage(
             @AuthenticationPrincipal User currentUser,
-            @PathVariable Long user,
+            @PathVariable("user") Long user,
             @RequestParam("id") Message message,
             @RequestParam("text") String text,
             @RequestParam("tag") String tag,
@@ -159,7 +187,7 @@ public class MainController {
     @GetMapping(("/messages/{messages}/like"))
     public String like(
             @AuthenticationPrincipal User currentUser,
-            @PathVariable Message message,
+            @PathVariable("messages") Message message,
             RedirectAttributes redirectAttributes,
             @RequestHeader(required = false) String referer
     ) {

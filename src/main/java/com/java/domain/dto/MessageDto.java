@@ -30,6 +30,16 @@ public class MessageDto {
         this.meLiked = meLiked;
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
     public String getAuthorName() {
         return MessageHelper.getAuthorName(author);
     }
