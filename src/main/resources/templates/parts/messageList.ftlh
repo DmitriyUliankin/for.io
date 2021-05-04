@@ -1,13 +1,13 @@
 <#include "security.ftlh">
 <#import "pager.ftlh" as p>
 
-<@p.pager url page/>
+<#--<@p.pager url page/>-->
 <div id="collapses" style="display: none">
     <#include "fill.ftlh"/>
 </div>
-<div class="card-columns" id="message-list">
+<div class="container card-row" id="message-list">
     <#list page.content as message>
-        <div class="card my-3" data-id="${message.id}">
+        <div class="card border-dark my-3 p-3" style="width: 30rem;" data-id="${message.id}">
             <#if message.filename??>
                 <img src="/img/${message.filename}" class="card-img-top"/>
             </#if>
@@ -28,10 +28,10 @@
                         ${message.likes}
                     </a>
                     <#if message.author.id == currentUserId>
-                        <a class="col btn btn-primary" onclick="bolean()"
+                        <a class="col m-3 btn btn-primary" onclick="bolean()"
                            href="/user-messages/${message.author.id}?message=${message.id}">Edit</a>
                     </#if>
-                    <button class="col btn btn-primary" data-toggle="collapse" onclick="aa(`collap`+${message.id})">Comment</button>
+                    <button class="col m-3 btn btn-primary" data-toggle="collapse" onclick="aa(`collap`+${message.id})">Comment</button>
 
                 </div>
                 <div id="collap${message.id}" style="display: none">

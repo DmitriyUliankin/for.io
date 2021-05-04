@@ -15,10 +15,10 @@
                     <a class="nav-link" href="/home">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/main">Messages</a>
+                    <a class="nav-link" href="/main">Recomendation</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/user-messages/${currentUserId}">My messages</a>
+                    <a class="nav-link" href="/user-messages/${currentUserId}">Profile</a>
                 </li>
             </#if>
             <#if isAdmin>
@@ -28,12 +28,21 @@
             </#if>
             <#if user??>
                 <li class="nav-item">
-                    <a class="nav-link" href="/user/profile">Profile</a>
+                    <a class="nav-link" href="/user/profile">Settings</a>
                 </li>
             </#if>
         </ul>
+        <#if user??>
+            <div class="mr-5">
+                <form method="get" action="/main" class="form-inline">
+                    <input type="text" name="filter" class="form-control" value="${filter?ifExists}"
+                           placeholder="search by tag">
+                    <button type="submit" class="btn btn-primary ml-2">Search</button>
+                </form>
+            </div>
+        </#if>
 
-        <div class="navbar-text mr-3"><#if user??>${name}<#else>Please, login</#if></div>
+        <div class="navbar-text mr-3 ml-3"><#if user??>${name}<#else>Please, login</#if></div>
         <@l.logout />
     </div>
 </nav>

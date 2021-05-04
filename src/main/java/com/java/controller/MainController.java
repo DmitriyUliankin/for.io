@@ -56,21 +56,21 @@ public class MainController {
                            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
                            @AuthenticationPrincipal User user) {
         Page<MessageDto> page = messageService.messageList(pageable, filter, user);
+        List<Comment> list = commentService.findAll();
+        model.addAttribute("comment", list);
 
         PageImpl<MessageDto> messageDtos = new PageImpl<>(new ArrayList<>());
         List<MessageDto> lst = new ArrayList<>();
-
         for (int i = 0; i < page.getTotalElements(); i++) {
             MessageDto messageDto = page.getContent().get(i);
             Set<User> subscribers = messageDto.getAuthor().getSubscribers();
             ArrayList<User> users = new ArrayList<>(subscribers);
             String username = "";
-            if (users.size() != 0) {
-                username = users.get(0).getUsername();
-            }
-            if (user.getUsername().equals(username)) {
-                System.out.println(username);
-                lst.add(page.getContent().get(i));
+            for (int j = 0; j < users.size(); j++) {
+                if (user.getUsername().equals(users.get(j).getUsername())) {
+                    System.out.println(username);
+                    lst.add(page.getContent().get(i));
+                }
             }
         }
         messageDtos = new PageImpl<>(lst);
@@ -151,7 +151,8 @@ public class MainController {
 
     ) {
         Page<MessageDto> page = messageService.messageListForUser(pageable, currentUser, author);
-
+        List<Comment> list = commentService.findAll();
+        model.addAttribute("comment", list);
         model.addAttribute("userChannel", author);
         model.addAttribute("subscriptionsCount", author.getSubscriptions().size());
         model.addAttribute("subscribersCount", author.getSubscribers().size());
