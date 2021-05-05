@@ -9,9 +9,6 @@
             <a class="btn btn-info" href="/user/subscribe/${userChannel.id}">Subscribe</a>
         </#if>
     </#if>
-    <#if isCurrentUser>
-        <#include "parts/messageEdit.ftlh"/>
-    </#if>
     <div class="container my-3">
         <div class="row">
             <div class="col">

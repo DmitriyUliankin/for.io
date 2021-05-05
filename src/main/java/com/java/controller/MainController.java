@@ -53,7 +53,7 @@ public class MainController {
     @GetMapping("/home")
     public String greeting(@RequestParam(required = false, defaultValue = "") String filter,
                            Model model,
-                           @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+                           @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC, size = Integer.MAX_VALUE) Pageable pageable,
                            @AuthenticationPrincipal User user) {
         Page<MessageDto> page = messageService.messageList(pageable, filter, user);
         List<Comment> list = commentService.findAll();
@@ -68,7 +68,6 @@ public class MainController {
             String username = "";
             for (int j = 0; j < users.size(); j++) {
                 if (user.getUsername().equals(users.get(j).getUsername())) {
-                    System.out.println(username);
                     lst.add(page.getContent().get(i));
                 }
             }

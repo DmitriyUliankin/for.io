@@ -1,7 +1,6 @@
 <#include "security.ftlh">
 <#import "pager.ftlh" as p>
 
-<#--<@p.pager url page/>-->
 <div id="collapses" style="display: none">
     <#include "fill.ftlh"/>
 </div>
