@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Table(name = "post")
 public class Message implements Serializable {
 
     @Id
@@ -22,6 +23,7 @@ public class Message implements Serializable {
     private String text;
 
     @Length(max = 255, message = "Tag too long (more than 255b)")
+    @Column(name = "name_post")
     private String tag;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -34,7 +36,7 @@ public class Message implements Serializable {
     private String filename;
 
     @ManyToMany
-    @JoinTable(name="message_likes", joinColumns = {@JoinColumn(name = "message_id")},
+    @JoinTable(name="post_likes", joinColumns = {@JoinColumn(name = "post_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<User> likes = new HashSet<>();
 
