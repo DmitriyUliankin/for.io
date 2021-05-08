@@ -210,25 +210,18 @@ public class MainController {
         return "redirect:" + components.getPath();
     }
 
-    @PostMapping("/delete")
-    public String delete(
-            @RequestParam Long id,
-            @RequestParam Long user
-    ) {
-        System.out.println(1);
-        messageRepository.deleteById(id);
-        System.out.println(2);
-        return "redirect:/user-messages/" + user;
-    }
-
     @PostMapping("/deleteCom")
     public String deleteCom(
             @RequestParam Long id,
-            @RequestParam Long user
+            @RequestParam Long user,
+            RedirectAttributes redirectAttributes,
+            @RequestHeader(required = false) String referer
     ) {
-        System.out.println(1);
         commentService.deleteById(id);
-        System.out.println(2);
-        return "redirect:/user-messages/" + user;
+        UriComponents components = UriComponentsBuilder.fromHttpUrl(referer).build();
+        components.getQueryParams()
+                .entrySet()
+                .forEach(pair -> redirectAttributes.addAttribute(pair.getKey(), pair.getValue()));
+        return "redirect:" + components.getPath();
     }
 }

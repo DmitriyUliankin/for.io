@@ -30,22 +30,28 @@
                         <a class="col m-3 btn btn-primary" onclick="bolean()"
                            href="/user-messages/${message.author.id}?message=${message.id}">Edit</a>
                     </#if>
-                    <button class="col m-3 btn btn-primary" data-toggle="collapse" onclick="aa(`collap`+${message.id})">Comment</button>
+                    <button class="col m-3 btn btn-primary" data-toggle="collapse" onclick="aa(`collap`+${message.id})">
+                        Comment
+                    </button>
 
                 </div>
                 <div class="row" id="collap${message.id}" style="display: none">
                     <#list comment as comment>
                         <#if message.id == comment.message.id>
-                            <a class="col align-self-center"
-                               href="/user-messages/${comment.author.id}"> ${comment.author.username} </a>
-                            <a>:</a>
-                            <a class="col align-self-center"> ${comment.text}</a>
-                            <form class="d-flex col align-self-center" action="/deleteCom" method="post">
-                                <input type="hidden" name="_csrf" value="${_csrf.token}"/>
-                                <input type="hidden" name="id" value="${comment.id}"/>
-                                <input type="hidden" name="user" value="${user.id}"/>
-                                <input class="d-flex" type="submit" value="Remove"/>
-                            </form>
+                            <p>
+                                <a class="col align-self-center"
+                                   href="/user-messages/${comment.author.id}"> ${comment.author.username} </a>
+                                <a>:</a>
+                                <a class="col align-self-center"> ${comment.text}</a>
+                            </p>
+                            <#if message.author.id == user.id || comment.author.id == user.id>
+                                <form class="d-flex col align-self-center" action="/deleteCom" method="post">
+                                    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                                    <input type="hidden" name="id" value="${comment.id}"/>
+                                    <input type="hidden" name="user" value="${user.id}"/>
+                                    <input class="d-flex" type="submit" value="Remove"/>
+                                </form>
+                            </#if>
                         </#if>
                     </#list>
                     <#include "comment.ftlh"/>
