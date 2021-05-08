@@ -209,4 +209,19 @@ public class MainController {
                 .forEach(pair -> redirectAttributes.addAttribute(pair.getKey(), pair.getValue()));
         return "redirect:" + components.getPath();
     }
+
+    @PostMapping("/deleteCom")
+    public String deleteCom(
+            @RequestParam Long id,
+            @RequestParam Long user,
+            RedirectAttributes redirectAttributes,
+            @RequestHeader(required = false) String referer
+    ) {
+        commentService.deleteById(id);
+        UriComponents components = UriComponentsBuilder.fromHttpUrl(referer).build();
+        components.getQueryParams()
+                .entrySet()
+                .forEach(pair -> redirectAttributes.addAttribute(pair.getKey(), pair.getValue()));
+        return "redirect:" + components.getPath();
+    }
 }
