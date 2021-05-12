@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>com.java</groupId>
-    <artifactId>switter-web-app</artifactId>
+    <artifactId>forio-web-app</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
