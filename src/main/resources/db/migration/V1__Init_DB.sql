@@ -1,12 +1,34 @@
+CREATE SEQUENCE IF NOT EXISTS hibernate_sequence START 1 INCREMENT 1;
 
-create sequence hibernate_sequence start 1 increment 1;
+CREATE TABLE IF NOT EXISTS post
+(
+    id        INT8          NOT NULL,
+    filename  VARCHAR(255),
+    name_post VARCHAR(255),
+    text      VARCHAR(2048) NOT NULL,
+    user_id   INT8,
+    PRIMARY KEY (id)
+);
 
-create table post (id int8 not null, filename varchar(255), name_post varchar(255), text varchar(2048) not null, user_id int8, primary key (id));
+CREATE TABLE IF NOT EXISTS user_role
+(
+    user_id INT8 NOT NULL,
+    roles   VARCHAR(255)
+);
 
-create table user_role (user_id int8 not null, roles varchar(255));
+CREATE TABLE IF NOT EXISTS usr
+(
+    id              INT8         NOT NULL,
+    activation_code VARCHAR(255),
+    active          BOOLEAN      NOT NULL,
+    email           VARCHAR(255),
+    password        VARCHAR(255) NOT NULL,
+    username        VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
 
-create table usr (id int8 not null, activation_code varchar(255), active boolean not null, email varchar(255), password varchar(255) not null, username varchar(255) not null, primary key (id));
+ALTER TABLE IF EXISTS message
+    ADD CONSTRAINT massage_user_fk FOREIGN KEY (user_id) REFERENCES usr;
 
-alter table if exists message add constraint massage_user_fk foreign key (user_id) references usr;
-
-alter table if exists user_role add constraint user_role_user_fk foreign key (user_id) references usr;
+ALTER TABLE IF EXISTS user_role
+    ADD CONSTRAINT user_role_user_fk FOREIGN KEY (user_id) REFERENCES usr;

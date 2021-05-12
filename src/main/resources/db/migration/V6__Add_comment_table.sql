@@ -1,8 +1,8 @@
-create table comment
+CREATE TABLE IF NOT EXISTS comment
 (
-    id    bigint not null ,
-    text  varchar(255),
-    post_id bigint not null references post,
-    user_id    bigint not null references usr,
-    primary key (id, post_id, user_id)
+    id      BIGINT NOT NULL,
+    text    VARCHAR(255),
+    post_id BIGINT NOT NULL REFERENCES post,
+    user_id BIGINT NOT NULL REFERENCES usr,
+    PRIMARY KEY (id, post_id, user_id)
 )

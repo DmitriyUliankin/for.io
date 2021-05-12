@@ -1,6 +1,6 @@
-create table user_subscriptions
+CREATE TABLE IF NOT EXISTS user_subscriptions
 (
-    channel_id    int8 not null references usr,
-    subscriber_id int8 not null references usr,
-    primary key (channel_id, subscriber_id)
+    channel_id    INT8 NOT NULL REFERENCES usr,
+    subscriber_id INT8 NOT NULL REFERENCES usr,
+    PRIMARY KEY (channel_id, subscriber_id)
 )
