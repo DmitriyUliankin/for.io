@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SwitterWebAppApplication {
+public class ForioWebAppApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SwitterWebAppApplication.class, args);
+        SpringApplication.run(ForioWebAppApplication.class, args);
     }
 
 }

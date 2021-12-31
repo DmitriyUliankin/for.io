@@ -1,11 +1,16 @@
 package com.java.controller;
 
+import com.java.domain.Comment;
 import com.java.domain.Message;
 import com.java.domain.User;
+import com.java.domain.dto.MessageDto;
 import com.java.repository.MessageRepository;
+import com.java.service.CommentService;
+import com.java.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -14,47 +19,75 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class MainController {
 
     @Autowired
+    private CommentService commentService;
+
+    @Autowired
     private MessageRepository messageRepository;
+
+    @Autowired
+    private MessageService messageService;
 
     @Value("${upload.path}")
     private String uploadPath;
 
     @GetMapping("/")
-    public String greeting(Map<String, Object> model) {
-        return "greeting";
+    public String slash() {
+        return "slash";
+    }
+
+    @GetMapping("/home")
+    public String greeting(@RequestParam(required = false, defaultValue = "") String filter,
+                           Model model,
+                           @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC, size = Integer.MAX_VALUE) Pageable pageable,
+                           @AuthenticationPrincipal User user) {
+        Page<MessageDto> page = messageService.messageList(pageable, filter, user);
+        List<Comment> list = commentService.findAll();
+        model.addAttribute("comment", list);
+
+        PageImpl<MessageDto> messageDtos = new PageImpl<>(new ArrayList<>());
+        List<MessageDto> lst = new ArrayList<>();
+        for (int i = 0; i < page.getTotalElements(); i++) {
+            MessageDto messageDto = page.getContent().get(i);
+            Set<User> subscribers = messageDto.getAuthor().getSubscribers();
+            ArrayList<User> users = new ArrayList<>(subscribers);
+            String username = "";
+            for (int j = 0; j < users.size(); j++) {
+                if (user.getUsername().equals(users.get(j).getUsername())) {
+                    lst.add(page.getContent().get(i));
+                }
+            }
+        }
+        messageDtos = new PageImpl<>(lst);
+        model.addAttribute("page", messageDtos);
+        model.addAttribute("url", "/");
+        return "home";
     }
 
     @GetMapping("/main")
     public String main(
             @RequestParam(required = false, defaultValue = "") String filter,
             Model model,
-            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal User user
     ) {
-        Page<Message> page;
-
-        if (filter != null && !filter.isEmpty()) {
-            page = messageRepository.findByTag(filter, pageable);
-        } else {
-            page = messageRepository.findAll(pageable);
-        }
-
+        Page<MessageDto> page = messageService.messageList(pageable, filter, user);
+        List<Comment> list = commentService.findAll();
+        model.addAttribute("comment", list);
         model.addAttribute("page", page);
         model.addAttribute("url", "/main");
         model.addAttribute("filter", filter);
@@ -88,7 +121,7 @@ public class MainController {
 
         model.addAttribute("messages", messages);
 
-        return "main";
+        return "redirect:/user-messages/" + user.getId();
     }
 
     private void saveFile(MultipartFile file, Message message) throws IOException {
@@ -107,22 +140,26 @@ public class MainController {
         }
     }
 
-    @GetMapping("/user-messages/{user}")
+    @GetMapping("/user-messages/{author}")
     public String userMessages(
             @AuthenticationPrincipal User currentUser,
-            @PathVariable User user,
+            @PathVariable User author,
             Model model,
-            @RequestParam(required = false) Message message
-    ){
-        Set<Message> messages = user.getMessages();
+            @RequestParam(required = false) Message message,
+            @PageableDefault(sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
 
-        model.addAttribute("userChannel", user);
-        model.addAttribute("subscriptionsCount", user.getSubscriptions().size());
-        model.addAttribute("subscribersCount", user.getSubscribers().size());
-        model.addAttribute("isSubscriber", user.getSubscribers().contains(currentUser));
-        model.addAttribute("messages", messages);
+    ) {
+        Page<MessageDto> page = messageService.messageListForUser(pageable, currentUser, author);
+        List<Comment> list = commentService.findAll();
+        model.addAttribute("comment", list);
+        model.addAttribute("userChannel", author);
+        model.addAttribute("subscriptionsCount", author.getSubscriptions().size());
+        model.addAttribute("subscribersCount", author.getSubscribers().size());
+        model.addAttribute("isSubscriber", author.getSubscribers().contains(currentUser));
+        model.addAttribute("page", page);
         model.addAttribute("message", message);
-        model.addAttribute("isCurrentUser", currentUser.equals(user));
+        model.addAttribute("isCurrentUser", currentUser.equals(author));
+        model.addAttribute("url", "/user-messages/" + author.getId());
 
         return "userMessages";
     }
@@ -130,18 +167,18 @@ public class MainController {
     @PostMapping("/user-messages/{user}")
     public String updateMessage(
             @AuthenticationPrincipal User currentUser,
-            @PathVariable Long user,
+            @PathVariable("user") Long user,
             @RequestParam("id") Message message,
             @RequestParam("text") String text,
             @RequestParam("tag") String tag,
             @RequestParam("file") MultipartFile file
     ) throws IOException {
-        if (message.getAuthor().equals(currentUser)){
-            if (!StringUtils.isEmpty(text)){
+        if (message.getAuthor().equals(currentUser)) {
+            if (!StringUtils.isEmpty(text)) {
                 message.setText(text);
             }
 
-            if (!StringUtils.isEmpty(tag)){
+            if (!StringUtils.isEmpty(tag)) {
                 message.setTag(tag);
             }
 
@@ -153,4 +190,38 @@ public class MainController {
         return "redirect:/user-messages/" + user;
     }
 
+    @GetMapping(("/messages/{messages}/like"))
+    public String like(
+            @AuthenticationPrincipal User currentUser,
+            @PathVariable("messages") Message message,
+            RedirectAttributes redirectAttributes,
+            @RequestHeader(required = false) String referer
+    ) {
+        Set<User> likes = message.getLikes();
+        if (likes.contains(currentUser)) {
+            likes.remove(currentUser);
+        } else {
+            likes.add(currentUser);
+        }
+        UriComponents components = UriComponentsBuilder.fromHttpUrl(referer).build();
+        components.getQueryParams()
+                .entrySet()
+                .forEach(pair -> redirectAttributes.addAttribute(pair.getKey(), pair.getValue()));
+        return "redirect:" + components.getPath();
+    }
+
+    @PostMapping("/deleteCom")
+    public String deleteCom(
+            @RequestParam Long id,
+            @RequestParam Long user,
+            RedirectAttributes redirectAttributes,
+            @RequestHeader(required = false) String referer
+    ) {
+        commentService.deleteById(id);
+        UriComponents components = UriComponentsBuilder.fromHttpUrl(referer).build();
+        components.getQueryParams()
+                .entrySet()
+                .forEach(pair -> redirectAttributes.addAttribute(pair.getKey(), pair.getValue()));
+        return "redirect:" + components.getPath();
+    }
 }
